@@ -1,44 +1,58 @@
-# owner.py
-from flask import Blueprint, request, jsonify
-from database import DB_NAME
+# database.py
 import sqlite3
 
-owner_bp = Blueprint('owner', __name__)
+# Nome do arquivo do banco de dados SQLite
+DB_NAME = 'database.db'
 
-@owner_bp.route('/login', methods=['POST'])
-def owner_login():
-    data = request.json  # Recebe os dados do usuário em JSON
+# Função para inicializar o banco de dados e criar as tabelas se não existirem
 
-    # Validação básica dos dados recebidos (ajuste conforme necessário)
-    if not data or 'uid' not in data or 'email' not in data or 'createdAt' not in data or 'lastLoginAt' not in data:
-        return jsonify({'error': 'Dados inválidos'}), 400
 
+def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
-    # Verifica se o usuário já existe na tabela owners (baseado no UID do Firebase)
-    cursor.execute('SELECT own_id FROM owners WHERE own_uid = ?', (data['uid'],))
-    existing_user = cursor.fetchone()
+    # Cria a tabela "owners" se não existir
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS owners (
+            own_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            own_uid TEXT UNIQUE NOT NULL,
+            own_display_name TEXT,
+            own_email TEXT UNIQUE NOT NULL,
+            own_photo_url TEXT,
+            own_created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            own_last_login_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            own_status TEXT NOT NULL DEFAULT 'ON' CHECK (own_status IN ('ON', 'OFF', 'DEL')),
+            own_metadata TEXT
+        )
+    ''')
 
-    if existing_user:
-        # Atualiza os dados existentes (exceto created_at, que permanece o original)
-        cursor.execute('''
-            UPDATE owners SET
-                own_display_name = ?,
-                own_email = ?,
-                own_photo_url = ?,
-                own_last_login_at = ?,
-                own_status = 'ON'
-            WHERE own_uid = ?
-        ''', (data.get('displayName'), data['email'], data.get('photoURL'), data['lastLoginAt'], data['uid']))
-    else:
-        # Insere um novo usuário
-        cursor.execute('''
-            INSERT INTO owners (own_uid, own_display_name, own_email, own_photo_url, own_created_at, own_last_login_at, own_status)
-            VALUES (?, ?, ?, ?, ?, ?, 'ON')
-        ''', (data['uid'], data.get('displayName'), data['email'], data.get('photoURL'), data['createdAt'], data['lastLoginAt']))
+    # Cria a tabela "pads" se não existir
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS pads (
+            pad_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pad_created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            pad_title TEXT NOT NULL,
+            pad_content TEXT,
+            pad_owner INTEGER,
+            pad_status TEXT NOT NULL DEFAULT 'ON' CHECK (pad_status IN ('ON', 'OFF', 'DEL')),
+            pad_metadata TEXT,
+            FOREIGN KEY (pad_owner) REFERENCES owners (own_id)
+        )
+    ''')
+
+    # Cria a tabela "contacts" se não existir
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS contacts (
+            cnt_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cnt_created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            cnt_name TEXT,
+            cnt_email TEXT,
+            cnt_subject TEXT,
+            cnt_message TEXT,
+            cnt_status TEXT NOT NULL DEFAULT 'RECEIVED' CHECK (cnt_status IN ('RECEIVED', 'READED', 'RESPONDED', 'DELETED')),
+            cnt_metadata TEXT
+        )
+    ''')
 
     conn.commit()
     conn.close()
-
-    return jsonify({'message': 'Usuário persistido com sucesso'}), 200
