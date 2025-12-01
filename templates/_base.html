@@ -35,12 +35,12 @@
                     <li class="nav-item mt-2 mt-md-0"><a class="nav-link" href="/about">Sobre</a></li>
                 </ul>
 
-                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 mt-3 mt-md-0">
+                 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 mt-3 mt-md-0">
 
-                    <form class="order-2 order-md-1 w-100">
+                    <form class="order-2 order-md-1 w-100" method="get" action="/search">
                         <div class="input-group">
-                            <input class="form-control" type="text" placeholder="Procurar...">
-                            <button class="btn btn-secondary" type="button"><i class="bi bi-search"></i></button>
+                            <input class="form-control" type="text" name="q" placeholder="Procurar..." required minlength="2">
+                            <button class="btn btn-secondary" type="submit"><i class="bi bi-search"></i></button>
                         </div>
                     </form>
 
@@ -57,20 +57,20 @@
         </div>
     </nav>
 
-     <main class="container mt-5 p-4 bg-white d-flex flex-column flex-grow-1">
-        
+    <main class="container mt-5 p-4 bg-white d-flex flex-column flex-grow-1">
+
         {# Mensagens flash formatadas no Bootstrap 5 #}
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" id="baseMainAlert">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        
+
         {% block content %}{% endblock %}
     </main>
 
@@ -112,7 +112,7 @@
 
         <div class="container d-flex justify-content-between align-items-center py-2">
             <a href="/" title="Página inicial" class="fs-3"><i class="bi bi-house"></i></a>
-            <div class="text-center">&copy; 2025 Joca da Silva</div>
+            <div class="text-center">&copy; 2025 Bryan Gomes</div>
             <a href="#top" title="Topo desta página" class="fs-3"><i class="bi bi-arrow-up-circle"></i></a>
         </div>
 
