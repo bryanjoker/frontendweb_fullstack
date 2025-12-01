@@ -52,9 +52,9 @@ INSERT INTO owners (
 	own_photo_url
 ) VALUES (
 	'92U33H8E839H',
-	'Bryan Gomes',
-	'bryangomes@gmail.com',
-	'img/fotobryan.jpg'
+	'Joca da Silva',
+	'jocasilva@gmail.com',
+	'img/fotojoca.jpg'
 ), (
 	'UT48R407348YE',
 	'Maricleuza Siriliano',
@@ -115,7 +115,7 @@ SELECT * FROM owners WHERE own_photo_url LIKE '%png';
 SELECT * FROM owners WHERE own_photo_url LIKE '%foto%';
 
 -- Pesquisa e retorna os registros onde 'own_photo_url' ou 'own_email' contém a string de pesquisa
-SELECT * FROM owners WHERE own_display_name LIKE '%bryan%' OR own_email LIKE '%gmail%';
+SELECT * FROM owners WHERE own_display_name LIKE '%joca%' OR own_email LIKE '%gmail%';
 
 -- Apaga um usuário específico
 -- OBS: Cuidado! Isso não é recomendado em produção.
@@ -151,20 +151,6 @@ INNER JOIN owners ON pad_owner = own_id;
 -- Lista todos os "pads" e seus respectivos "owners"
 SELECT pad_id, pad_title, own_id, own_display_name FROM pads
 INNER JOIN owners ON pad_owner = own_id;
-
-CREATE TABLE contacts (
-    con_created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-	con_display_name TEXT,
-	con_email TEXT UNIQUE NOT NULL,
-	con_subject TEXT UNIQUE NOT NULL,
-	-- Id do "owner" deste "pad" → Chave estrangeira 
-	con_owner INTEGER,
-	con_status TEXT NOT NULL DEFAULT 'ON' CHECK (pad_status IN ('ON', 'OFF', 'DEL')),
-	-- Reservado para uso futuro
-	con_metadata TEXT,
-	
-
-);
 
 
 
